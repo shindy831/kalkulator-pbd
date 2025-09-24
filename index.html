@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Kalkulator Invers Pertumbuhan Ekonomi</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background: #f9f9f9;
+    }
+    h1 {
+      text-align: center;
+      color: #2c3e50;
+    }
+    .container {
+      max-width: 600px;
+      margin: auto;
+      padding: 20px;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0px 4px 10px rgba(0,0,0,0.1);
+    }
+    label {
+      display: block;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+    input {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+    button {
+      margin-top: 10px;
+      width: 100%;
+      padding: 10px;
+      border: none;
+      border-radius: 6px;
+      background: #3498db;
+      color: white;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #2980b9;
+    }
+    .result {
+      margin-top: 15px;
+      font-size: 16px;
+      font-weight: bold;
+      color: #27ae60;
+    }
+    canvas {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Kalkulator Invers Pertumbuhan Ekonomi</h1>
+  <div class="container">
+    <label>PDB Sekarang:</label>
+    <input type="number" id="pdbSekarang" placeholder="Masukkan PDB Sekarang">
+
+    <label>PDB Lalu:</label>
+    <input type="number" id="pdbLalu" placeholder="Masukkan PDB Lalu">
+
+    <label>Pertumbuhan (%):</label>
+    <input type="number" id="pertumbuhan" placeholder="Masukkan Pertumbuhan">
+
+    <label>Tahun (untuk grafik):</label>
+    <input type="number" id="tahun" placeholder="Masukkan Tahun">
+
+    <button onclick="hitungPertumbuhan()">Hitung Pertumbuhan (%)</button>
+    <button onclick="hitungPdbLalu()">Hitung PDB Lalu</button>
+    <button onclick="hitungPdbSekarang()">Hitung PDB Sekarang</button>
+    <button onclick="tambahData()">Tambah Data ke Grafik</button>
+
+    <div class="result" id="hasil"></div>
+
+    <canvas id="grafik" width="500" height="300"></canvas>
+  </div>
+
+  <script>
+    let dataTahun = [];
+    let dataPdb = [];
+
+    function hitungPertumbuhan() {
+      let pdbSekarang = parseFloat(document.getElementById("pdbSekarang").value);
+      let pdbLalu = parseFloat(document.getElementById("pdbLalu").value);
+      if (isNaN(pdbSekarang) || isNaN(pdbLalu) || pdbLalu === 0) {
+        alert("Masukkan angka valid!");
+        return;
+      }
+      let hasil = ((pdbSekarang - pdbLalu) / pdbLalu) * 100;
+      document.getElementById("hasil").innerText = "Pertumbuhan Ekonomi = " + hasil.toFixed(2) + "%";
+    }
+
+    function hitungPdbLalu() {
+      let pdbSekarang = parseFloat(document.getElementById("pdbSekarang").value);
+      let pertumbuhan = parseFloat(document.getElementById("pertumbuhan").value);
+      if (isNaN(pdbSekarang) || isNaN(pertumbuhan)) {
+        alert("Masukkan angka valid!");
+        return;
+      }
+      let hasil = pdbSekarang / (1 + pertumbuhan / 100);
+      document.getElementById("hasil").innerText = "PDB Lalu = " + hasil.toFixed(2);
+    }
+
+    function hitungPdbSekarang() {
+      let pdbLalu = parseFloat(document.getElementById("pdbLalu").value);
+      let pertumbuhan = parseFloat(document.getElementById("pertumbuhan").value);
+      if (isNaN(pdbLalu) || isNaN(pertumbuhan)) {
+        alert("Masukkan angka valid!");
+        return;
+      }
+      let hasil = pdbLalu * (1 + pertumbuhan / 100);
+      document.getElementById("hasil").innerText = "PDB Sekarang = " + hasil.toFixed(2);
+    }
+
+    function tambahData() {
+      let tahun = parseInt(document.getElementById("tahun").value);
+      let pdbSekarang = parseFloat(document.getElementById("pdbSekarang").value);
+      if (isNaN(tahun) || isNaN(pdbSekarang)) {
+        alert("Masukkan Tahun dan PDB valid!");
+        return;
+      }
+      dataTahun.push(tahun);
+      dataPdb.push(pdbSekarang);
+      updateChart();
+    }
+
+    const ctx = document.getElementById('grafik').getContext('2d');
+    let chart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: dataTahun,
+        datasets: [{
+          label: 'PDB per Tahun',
+          data: dataPdb,
+          borderColor: 'blue',
+          backgroundColor: 'lightblue',
+          fill: true,
+          tension: 0.2
+        }]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          y: { beginAtZero: true }
+        }
+      }
+    });
+
+    function updateChart() {
+      chart.data.labels = dataTahun;
+      chart.data.datasets[0].data = dataPdb;
+      chart.update();
+    }
+  </script>
+</body>
+</html>
